@@ -12,8 +12,14 @@ if "form_submitted" not in st.session_state:
 if "form_results" not in st.session_state:
     st.session_state.form_results = {}
 
+def on_submit():
+    st.success("Submitted!")
+    st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
+    # st.write(f"Here is what's submitted <br> {st.session_state.form_results}", unsafe_allow_html=True)
+
+
 survey = ss.StreamlitSurvey("Progress Bar Example")
-pages = survey.pages(4, progress_bar=True, on_submit=lambda: st.success("Submitted!"))
+pages = survey.pages(4, progress_bar=True, on_submit=lambda: on_submit())
 
 
 with pages:
@@ -64,12 +70,5 @@ with pages:
             "hobbies": hobbies,
         })
     elif pages.current == 3:
-        st.markdown("<h3>That's it! ✨</h3>", unsafe_allow_html=True)
         email = st.text_input("Your email address for our weekly recommendation")
         st.session_state.form_results.update({"email": email})
-        st.write("<h3>We will start the search. Stay tuned!</h3>", unsafe_allow_html=True)
-        st.write(f"Here is what's submitted <br> {st.session_state.form_results}", unsafe_allow_html=True)
-
-        # st.session_state.form_submitted = st.form_submit_button(label="Submit")
-        # print(st.session_state.form_results)
-        # save_json(st.session_state.form_results, "questionnaire_results/results_0.json")
