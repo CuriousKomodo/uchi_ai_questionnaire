@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from google.cloud import firestore
 from datetime import datetime
@@ -7,8 +7,11 @@ from utils import read_json
 
 
 class FireStore:
-    def __init__(self):
-        self.db = firestore.Client.from_service_account_json("firestore-key.json")
+    def __init__(self, credential_info: Optional[Dict] = None, credential_info_path: Optional[str] = None):
+        if credential_info:
+            self.db = firestore.Client.from_service_account_info(credential_info)
+        else:
+            self.db = firestore.Client.from_service_account_json(credential_info_path)
         self.users_collection = self.db.collection('users')
         self.submission_collection = self.db.collection('submissions')
 
@@ -41,6 +44,6 @@ class FireStore:
 
 
 if __name__ == '__main__':
-    firestore = FireStore()
+    firestore = FireStore(credential_info_path="firestore-key.json")
     result = read_json("example_result.json")
     firestore.insert_submission(result)

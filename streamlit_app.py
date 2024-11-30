@@ -16,7 +16,7 @@ if "form_results" not in st.session_state:
 def on_submit():
     st.success("Submitted!")
     st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
-    firestore = FireStore()
+    firestore = FireStore(credential_info=st.secrets["firestore_credentials"])
     firestore.insert_submission(st.session_state.form_results)
 
 survey = ss.StreamlitSurvey("Progress Bar Example")
@@ -76,3 +76,12 @@ with pages:
         first_name = st.text_input("What's your first name?")
         email = st.text_input("Your email address for our weekly recommendation")
         st.session_state.form_results.update({"email": email, "first_name": first_name})
+
+
+# if __name__ == '__main__':
+#     import sys
+#     from streamlit.web import cli as stcli
+#
+#     # For local debug
+#     sys.argv = ["streamlit", "run", "streamlit_app.py"]
+#     sys.exit(stcli.main())
