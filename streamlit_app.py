@@ -73,5 +73,6 @@ with pages:
             "hobbies": hobbies,
         })
     elif pages.current == 3:
+        first_name = st.text_input("What's your first name?")
         email = st.text_input("Your email address for our weekly recommendation")
-        st.session_state.form_results.update({"email": email})
+        st.session_state.form_results.update({"email": email, "first_name": first_name})
