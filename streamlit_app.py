@@ -1,6 +1,7 @@
 import streamlit_survey as ss
 import streamlit as st
 
+from connection.firestore import FireStore
 
 # https://olivierbinette-streamlit-surv-docs-streamlit-survey-docs-hu1jf8.streamlit.app/Advanced_Usage
 survey = ss.StreamlitSurvey("User Preference")
@@ -15,8 +16,8 @@ if "form_results" not in st.session_state:
 def on_submit():
     st.success("Submitted!")
     st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
-    # st.write(f"Here is what's submitted <br> {st.session_state.form_results}", unsafe_allow_html=True)
-
+    firestore = FireStore()
+    firestore.insert_submission(st.session_state.form_results)
 
 survey = ss.StreamlitSurvey("Progress Bar Example")
 pages = survey.pages(4, progress_bar=True, on_submit=lambda: on_submit())
@@ -25,26 +26,28 @@ pages = survey.pages(4, progress_bar=True, on_submit=lambda: on_submit())
 with pages:
     if pages.current == 0:
         st.markdown("<h3>Section 1 - Basic filter</h3>", unsafe_allow_html=True)
-        num_bedrooms = st.number_input("Number of bedrooms", min_value=0, max_value=10, value=1)
+        num_bedrooms = st.number_input("Minimum number of bedrooms", min_value=0, max_value=10, value=1)
         max_price = st.slider("Maximum price (in £1000)", min_value=100, max_value=1000, value=50)
-        property_type = survey.multiselect("Type of property:", options=["House", "Apartment"])
+        property_type = survey.multiselect("Type of property, select all that applies:", options=["House", "Apartment"])
         min_price = st.slider("Minimum lease year", min_value=0, max_value=900, value=150)
+        preferred_locations = survey.multiselect("Preferred locations in London, select all that applies", options=["London"])  # TODO: maybe a dropdown is better
         st.session_state.form_results.update({
             "num_bedrooms": num_bedrooms,
             "max_price": max_price,
             "property_type": property_type,
-            "min_price": min_price
+            "min_price": min_price,
+            "preferred_location": preferred_locations
         })
     elif pages.current == 1:
         st.markdown("<h3>Section 2 - Other filters</h3>", unsafe_allow_html=True)
-        build_era = survey.multiselect("Era of build:", options=["Victorian/Georgian", "Modern"])
-        refurbishment_needed = survey.multiselect("Level of refurbishment required", options=["Low/Medium", "High"])
+        build_era = survey.multiselect("Era of build, select all that applies:", options=["Victorian/Georgian", "Modern"])
+        refurbishment_needed = survey.multiselect("Maximum level of refurbishment required", options=["Low/Medium", "High"])
         has_private_parking = survey.checkbox("Has private parking")
         has_garden = survey.checkbox("Has garden")
         has_balcony = survey.checkbox("Has balcony")
         exclude_commercial_site = survey.checkbox("Exclude property above commercial sites")
         exclude_high_rise = survey.checkbox("Exclude property inside a high-rise building")
-        min_energy_rating = st.select_slider("Requirement on energy rating, at least:", options=["A", "B", "C", "D", "E", "No requirement"])
+        min_energy_rating = st.select_slider("Requirement on minimum energy rating:", options=["A", "B", "C", "D", "E", "No requirement"])
         st.session_state.form_results.update({
             "build_era": build_era,
             "refurbishment_needed": refurbishment_needed,

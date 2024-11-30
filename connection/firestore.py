@@ -1,6 +1,8 @@
 from google.cloud import firestore
 from datetime import datetime
 
+from utils import read_json
+
 
 class FireStore:
     def __init__(self):
@@ -30,3 +32,9 @@ class FireStore:
         users_ref = self.db.collection('users')
         for doc in users_ref.stream():
             print('{} => {}'.format(doc.id, doc.to_dict()))
+
+
+if __name__ == '__main__':
+    firestore = FireStore()
+    result = read_json("example_config.json")
+    firestore.insert_submission(result)
