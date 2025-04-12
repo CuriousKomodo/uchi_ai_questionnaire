@@ -5,7 +5,7 @@ from connection.firestore import FireStore
 
 # https://olivierbinette-streamlit-surv-docs-streamlit-survey-docs-hu1jf8.streamlit.app/Advanced_Usage
 survey = ss.StreamlitSurvey("User Preference")
-st.header("Let's find your dream home🏠")
+st.header("Let's find your dream home in London 🏠")
 
 if "form_submitted" not in st.session_state:
     st.session_state.form_submitted = False
@@ -25,6 +25,7 @@ pages = survey.pages(3, progress_bar=True, on_submit=lambda: on_submit())
 
 with pages:
     if pages.current == 0:
+        st.markdown("<h3>Getting started</h3>", unsafe_allow_html=True)
         num_bedrooms = st.number_input("Minimum number of bedrooms", min_value=0, max_value=10, value=1)
         max_price = st.slider("Maximum price (in £1000)", min_value=100, max_value=1000, value=50)
         property_type = survey.multiselect("Type of property, select all that applies:", options=["House", "Apartment"])
