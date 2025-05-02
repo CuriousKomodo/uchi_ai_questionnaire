@@ -91,7 +91,6 @@ def run_chat():
                     else:
                         base_messages.append(AIMessage(content=msg["content"]))
 
-                # Process the conversation
                 try:
                     customer_info = st.session_state.info_processor.process_conversation(base_messages)
                     st.session_state.customer_info = customer_info
@@ -119,51 +118,76 @@ def run_survey():
 
     # Helper function to get customer info value with default
     def get_customer_info(key, default=None):
+        if key == "property_type":
+            mapping = {
+                "both": ["House", "Apartment"],
+                "apartment": ["Apartment"],
+                "house": ["House"]
+            }
+            return mapping.get(key.lower())
         return st.session_state.customer_info.get(key, default)
 
     with pages:
         if pages.current == 0:
-            st.markdown("<h3>Getting started</h3>", unsafe_allow_html=True)
+            st.markdown("<h3>Tell us what you are looking for?</h3>", unsafe_allow_html=True)
+            if get_customer_info("first_name"):
+                st.markdown(f"Hello {get_customer_info('first_name')}, let's get you signed up.")
+
+            motivation = st.text_area(
+                "What is your reason for buying a property?",
+                value=get_customer_info("motivation", "")
+            )
             num_bedrooms = st.number_input(
                 "Minimum number of bedrooms", 
                 min_value=0, 
                 max_value=10, 
-                value=int(get_customer_info("number_of_rooms", 1))
+                value=int(get_customer_info("number_of_rooms", 2))
             )
             max_price = st.slider(
                 "Maximum price (in £1000)", 
                 min_value=100, 
                 max_value=1000, 
-                value=int(get_customer_info("maximum_budget", 50))
+                value=int(get_customer_info("maximum_budget", 500))
             )
             property_type = survey.multiselect(
                 "Type of property, select all that applies:", 
                 options=["House", "Apartment"],
                 default=[get_customer_info("property_type", "Apartment")]
             )
-            min_lease_year = st.slider(
-                "Minimum lease year", 
-                min_value=0, 
-                max_value=900, 
-                value=150
-            )
+            min_lease_year = None
+            if "Apartment" in property_type:
+                min_lease_year = st.slider(
+                    "Minimum lease year for the apartment",
+                    min_value=0,
+                    max_value=900,
+                    value=150
+                )
             user_preference = st.text_area(
                 "Tell us about the desired features of your dream home?", 
                 value=get_customer_info("additional_notes", "Bright light with good storage")
             )
             st.session_state.form_results.update({
+                "motivation": motivation,
                 "num_bedrooms": num_bedrooms,
                 "max_price": max_price,
                 "property_type": property_type,
                 "min_lease_year": min_lease_year,
-                "user_preference": user_preference
+                "user_preference": user_preference,
             })
 
         elif pages.current == 1:
-            st.markdown("<h3>Tell us about your life</h3>", unsafe_allow_html=True)
+            st.markdown("<h3>Location preference & your lifestyle</h3>", unsafe_allow_html=True)
+            timeline = st.text_input(
+                'When do you expect to complete the buy? i.e. the exchange date?',
+                value=get_customer_info("timeline", "within 12 months")
+            )
+            preferred_location = st.text_input(
+                'Do you have a preferred location? i.e. "West London" or "Finsbury Park"',
+                value=get_customer_info("preferred_location", "London")
+            )
             workplace_location = st.text_input(
-                "Where is the postcode of your workplace? Leave blank if not applicable.", 
-                value=get_customer_info("preferred_location", "")
+                "What's the postcode of a place you frequently commute to, such as your workplace/school?",
+                value=get_customer_info("preferred_location", ""),
             )
             has_child = survey.selectbox(
                 "Do you have children or plan to have a child soon?", 
@@ -180,6 +204,8 @@ def run_survey():
                 value="E.g. I like to play tennis"
             )
             st.session_state.form_results.update({
+                "preferred_location": preferred_location,
+                "timeline": timeline,
                 "workplace_location": workplace_location,
                 "has_child": has_child,
                 "has_pet": has_pet,
