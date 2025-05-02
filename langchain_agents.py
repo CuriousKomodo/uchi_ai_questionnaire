@@ -46,7 +46,7 @@ def property_agent(state: AgentState) -> Dict:
     Make sure they are all extracted before you ask the customer if they like to sign up with an email. 
     
     **Requirements on your tone**
-    Keep responses friendly and conversational. Ask one question at a time.
+    Keep responses friendly and conversational. Ask one question at a time. Greet the customer with their first name is given. 
     Avoid sales language and be helpful.
     
     **Product information about Uchi AI**
