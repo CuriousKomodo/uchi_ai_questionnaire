@@ -99,12 +99,11 @@ def run_chat():
                     params = {
                         "name": customer_info.get("first_name", ""),
                         "email": customer_info.get("email", ""),
-                        "workplace": customer_info.get("preferred_location", ""),
                         "has_child": str(customer_info.get("is_buying_alone", False)).lower(),
                         "has_pet": "false",
                         "hobbies": customer_info.get("additional_notes", ""),
                         "motivation": customer_info.get("motivation", ""),
-                        "property_type": customer_info.get("property_type", "Apartment"),
+                        "property_type": customer_info.get("property_type", "apartment"),
                         "num_bedrooms": str(customer_info.get("number_of_rooms", 1)),
                         "max_price": str(customer_info.get("maximum_budget", 50))
                     }
