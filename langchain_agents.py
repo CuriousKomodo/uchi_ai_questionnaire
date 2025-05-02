@@ -39,7 +39,7 @@ def property_agent(state: AgentState) -> Dict:
     - is_buying_alone: bool, whether they're buying alone or with someone
     - maximum_budget: int, in thousands (GBP)
     - num_bedrooms: int, minimum number of bedrooms
-    - timeline: str, when are they expecting to buy the property
+    - timeline: str, when are they expecting to buy the property, choose from "in 6 months", "in 12 months", "not sure"
     - preferred_location: str
     
     Feel free to add more fields if you get other information from the customer.

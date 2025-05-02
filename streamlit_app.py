@@ -101,8 +101,10 @@ def run_chat():
                         "email": customer_info.get("email", ""),
                         "has_child": str(customer_info.get("is_buying_alone", False)).lower(),
                         "has_pet": "false",
-                        "hobbies": customer_info.get("additional_notes", ""),
+                        "preferred_location": customer_info.get("preferred_location", ""),
+                        "additional_notes": customer_info.get("additional_notes", ""),
                         "motivation": customer_info.get("motivation", ""),
+                        "timeline": customer_info.get("timeline", ""),
                         "property_type": customer_info.get("property_type", "apartment"),
                         "num_bedrooms": str(customer_info.get("number_of_rooms", 1)),
                         "max_price": str(customer_info.get("maximum_budget", 50))
@@ -167,6 +169,11 @@ def run_survey():
                 "What is your reason for buying a property?",
                 value=get_param("motivation", "")
             )
+            buying_alone = survey.selectbox(
+                "Are you buying alone?",
+                options=[True, False],
+                default=get_param("is_buying_alone", True)
+            )
             num_bedrooms = st.number_input(
                 "Minimum number of bedrooms", 
                 min_value=0, 
@@ -198,6 +205,7 @@ def run_survey():
             )
             st.session_state.form_results.update({
                 "motivation": motivation,
+                "buying_alone": buying_alone,
                 "num_bedrooms": num_bedrooms,
                 "max_price": max_price,
                 "property_type": property_type,
