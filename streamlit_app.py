@@ -68,7 +68,7 @@ def run_chat():
             st.session_state.messages.append({"role": "assistant", "content": response})
             if not st.session_state.wants_to_signup:
                 st.session_state.wants_to_signup = new_state.get("wants_to_signup", False)
-            st.markdown(response)
+            st.markdown(response, unsafe_allow_html=True)
 
         # If user wants to sign up, process the conversation and show signup button
         if st.session_state.wants_to_signup:
@@ -129,7 +129,7 @@ def run_survey():
     params = st.query_params.to_dict()
     
     # Debug prints to see what parameters we're getting
-    st.write("Debug: Received parameters:", params)
+    print("Debug: Received parameters:", params)
     
     survey = ss.StreamlitSurvey("User Preference")
     pages = survey.pages(3, progress_bar=True, on_submit=lambda: on_submit())
@@ -171,8 +171,8 @@ def run_survey():
             )
             buying_alone = survey.selectbox(
                 "Are you buying alone?",
-                options=[True, False],
-                default=get_param("is_buying_alone", True)
+                options=["Yes", "No"],
+                placeholder="Yes" if get_param("is_buying_alone", True) else "No"
             )
             num_bedrooms = st.number_input(
                 "Minimum number of bedrooms", 

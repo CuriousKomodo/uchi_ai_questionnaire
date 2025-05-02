@@ -46,7 +46,7 @@ class CustomerInfoProcessor:
             "maximum_budget": int,           # Their maximum budget in thousands GBP
             "property_type": str,          # Are they looking for "apartment", a "house" or "both"?
             "number_of_rooms": int,          # Minimum number of rooms 
-            "timeline": str,             # When are they looking to buy?
+            "timeline": str,             # When are they looking to buy, choose from "in 6 months", "in 12 months" OR "not sure"
             "additional_notes": str        # Any additional requirements about the property
         }
         

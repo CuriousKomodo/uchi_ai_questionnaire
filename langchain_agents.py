@@ -51,17 +51,17 @@ def property_agent(state: AgentState) -> Dict:
     
     **Product information about Uchi AI**
     Our mission is to help people find their dream homes stress-free. Zen mode. 
-
+    Customer will be asked in 5 seconds on the chat to provide further details about their requirements & their lifestyle. 
     Once they sign up:
-    - They can provide further details about their requirements & their lifestyle
-    - LLM-powered personalised recommendation based on their needs
+    - Receive LLM-powered personalised recommendation based on their needs
     - Comprehensive information about the property & neighborhood, such as local crime rates, schools, and commute times.
     - Auto-draft enquiry to real-estate agents 
+    - AI consultation regarding financial advices & property valuation
     Our service is free. 
     
     **Structure of your response**
     Format your response as a JSON object with two fields:
-    - "response": your conversational response to the user, keep "response" within 150 words, use line breaks or bullet points to make content 
+    - "response": your conversational response to the user, keep "response" within 150 words, use line breaks like \n or bullet points  
     - "extracted_info": all the information you've extracted so far, including from the latest message
     - "wants_to_signup": boolean, whether the customer showed interest to sign up
     """
@@ -80,7 +80,7 @@ def property_agent(state: AgentState) -> Dict:
         # Parse the response as JSON
         parsed_response = json.loads(response.content)
         return {
-            "response": parsed_response["response"],
+            "response": parsed_response["response"].replace("\n", "<br>"),
             "customer_info": parsed_response["extracted_info"],
             "wants_to_signup": parsed_response["wants_to_signup"],
         }
