@@ -7,7 +7,7 @@ from langchain_agents import get_response
 from customer_info_processor import CustomerInfoProcessor, CustomerInfo
 from gif_service import GifService
 from connection.firestore import FireStore
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlencode
 
 def initialize_session_state():
     """Initialize session state variables."""
@@ -23,8 +23,6 @@ def initialize_session_state():
         st.session_state.info_processor = CustomerInfoProcessor()
     if "gif_service" not in st.session_state:
         st.session_state.gif_service = GifService()
-    if "show_survey" not in st.session_state:
-        st.session_state.show_survey = False
     if "form_submitted" not in st.session_state:
         st.session_state.form_submitted = False
     if "form_results" not in st.session_state:
@@ -91,12 +89,31 @@ def run_chat():
                     else:
                         base_messages.append(AIMessage(content=msg["content"]))
 
+                # Process the conversation
                 try:
                     customer_info = st.session_state.info_processor.process_conversation(base_messages)
                     st.session_state.customer_info = customer_info
-                    if st.button("Register with us ✨", type="primary"):
-                        st.session_state.show_survey = True
-                        st.rerun()
+                    
+                    # Generate URL parameters for the survey
+                    params = {
+                        "name": customer_info.get("first_name", ""),
+                        "email": customer_info.get("email", ""),
+                        "workplace": customer_info.get("preferred_location", ""),
+                        "has_child": str(customer_info.get("is_buying_alone", False)).lower(),
+                        "has_pet": "false",
+                        "hobbies": customer_info.get("additional_notes", ""),
+                        "motivation": customer_info.get("motivation", ""),
+                        "property_type": customer_info.get("property_type", "Apartment"),
+                        "num_bedrooms": str(customer_info.get("number_of_rooms", 1)),
+                        "max_price": str(customer_info.get("maximum_budget", 50))
+                    }
+                    
+                    # Create the survey URL
+                    base_url = st.query_params.get("base_url", "http://localhost:8501")
+                    survey_url = f"{base_url}/preferences?{urlencode(params)}"
+                    
+                    # Show the register button with the survey URL
+                    st.link_button("Register with us ✨", url=survey_url, type="primary")
                 except Exception as e:
                     st.error(f"Error processing customer information: {str(e)}")
 
@@ -105,6 +122,9 @@ def run_chat():
 
 def run_survey():
     st.title("Let's find your dream home in London 🏠")
+    
+    # Get URL parameters
+    params = st.query_params.to_dict()
     
     survey = ss.StreamlitSurvey("User Preference")
     pages = survey.pages(3, progress_bar=True, on_submit=lambda: on_submit())
@@ -117,7 +137,7 @@ def run_survey():
         st.session_state.form_submitted = True
 
     # Helper function to get customer info value with default
-    def get_customer_info(key, default=None):
+    def get_param(key, default=None):
         if key == "property_type":
             mapping = {
                 "both": ["House", "Apartment"],
@@ -129,74 +149,73 @@ def run_survey():
             key_words = ["baby", "child", "son", "daughter", "family", "kid"]
             if any([kw in str(st.session_state.customer_info).lower() for kw in key_words]):
                 return True
-        return st.session_state.customer_info.get(key, default)
+        return params.get(key, default)
 
     with pages:
         if pages.current == 0:
             st.markdown("<h3>Tell us what you are looking for?</h3>", unsafe_allow_html=True)
-            if get_customer_info("first_name"):
-                st.markdown(f"Hello {get_customer_info('first_name')}, let's get you signed up.")
+            if get_param("first_name"):
+                st.markdown(f"Hello {get_param('first_name')}, let's get you signed up.")
 
             motivation = st.text_area(
                 "What is your reason for buying a property?",
-                value=get_customer_info("motivation", "")
+                value=get_param("motivation", "")
             )
             num_bedrooms = st.number_input(
                 "Minimum number of bedrooms", 
                 min_value=0, 
                 max_value=10, 
-                value=int(get_customer_info("number_of_rooms", 2))
+                value=int(get_param("num_bedrooms", 2))
             )
             max_price = st.slider(
                 "Maximum price (in £1000)", 
                 min_value=100, 
                 max_value=1000, 
-                value=int(get_customer_info("maximum_budget", 500))
+                value=int(get_param("max_price", 500))
             )
             property_type = survey.multiselect(
                 "Type of property, select all that applies:", 
                 options=["House", "Apartment"],
-                default=get_customer_info("property_type", "Apartment")
+                default=get_param("property_type", "Apartment")
             )
             min_lease_year = None
             if "Apartment" in property_type:
                 min_lease_year = st.slider(
-                    "Minimum lease year for the apartment",
-                    min_value=0,
-                    max_value=900,
+                    "Minimum lease year", 
+                    min_value=0, 
+                    max_value=900, 
                     value=150
                 )
             user_preference = st.text_area(
                 "Tell us about the desired features of your dream home?", 
-                value=get_customer_info("additional_notes", "Bright light with good storage")
+                value=get_param("additional_notes", "Bright light with good storage")
             )
             st.session_state.form_results.update({
-                "motivation": motivation,
                 "num_bedrooms": num_bedrooms,
                 "max_price": max_price,
                 "property_type": property_type,
                 "min_lease_year": min_lease_year,
-                "user_preference": user_preference,
+                "user_preference": user_preference
             })
 
         elif pages.current == 1:
             st.markdown("<h3>Location preference & your lifestyle</h3>", unsafe_allow_html=True)
             timeline = st.text_input(
                 'When do you expect to complete the buy? i.e. the exchange date?',
-                value=get_customer_info("timeline", "within 12 months")
+                value=get_param("timeline", "within 12 months")
             )
             preferred_location = st.text_input(
                 'Do you have a preferred location? i.e. "West London" or "Finsbury Park"',
-                value=get_customer_info("preferred_location", "London")
+                value=get_param("preferred_location", "London")
             )
             workplace_location = st.text_input(
                 "What's the postcode of a place you frequently commute to, such as your workplace/school?",
-                value=get_customer_info("preferred_location", ""),
+                value=get_param("preferred_location", ""),
             )
             has_child = survey.selectbox(
                 "Do you have children or plan to have a child soon?", 
                 options=["Yes", "No"],
-                index=0 if get_customer_info("has_child", False) else 1
+                index=0 if get_param("has_child") == "true" else 1
             )
             has_pet = survey.selectbox(
                 "Do you have pets or plan to have a pet soon?", 
@@ -219,11 +238,11 @@ def run_survey():
             st.markdown("<h3>Complete the registration</h3>", unsafe_allow_html=True)
             first_name = st.text_input(
                 "What's your first name?",
-                value=get_customer_info("first_name", "")
+                value=get_param("first_name", "")
             )
             email = st.text_input(
                 "Enter your email",
-                value=get_customer_info("email", "")
+                value=get_param("email", "")
             )
             password = st.text_input("Enter your password")
             st.session_state.form_results.update({
@@ -235,7 +254,10 @@ def run_survey():
 def main():
     initialize_session_state()
     
-    if st.session_state.show_survey:
+    # Get the current URL path
+    current_path = st.query_params.get("path", "")
+    
+    if current_path == "/preferences":
         run_survey()
     else:
         run_chat()
