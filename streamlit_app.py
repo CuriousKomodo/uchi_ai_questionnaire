@@ -9,6 +9,7 @@ from gif_service import GifService
 from connection.firestore import FireStore
 from urllib.parse import parse_qs, urlencode
 
+
 def initialize_session_state():
     """Initialize session state variables."""
     if "messages" not in st.session_state:
@@ -110,7 +111,7 @@ def run_chat():
                     
                     # Create the survey URL
                     base_url = st.query_params.get("base_url", "http://localhost:8501")
-                    survey_url = f"{base_url}/preferences?{urlencode(params)}"
+                    survey_url = f"{base_url}?page=preferences&{urlencode(params)}"
                     
                     # Show the register button with the survey URL
                     st.link_button("Register with us ✨", url=survey_url, type="primary")
@@ -126,6 +127,9 @@ def run_survey():
     # Get URL parameters
     params = st.query_params.to_dict()
     
+    # Debug prints to see what parameters we're getting
+    st.write("Debug: Received parameters:", params)
+    
     survey = ss.StreamlitSurvey("User Preference")
     pages = survey.pages(3, progress_bar=True, on_submit=lambda: on_submit())
 
@@ -138,18 +142,21 @@ def run_survey():
 
     # Helper function to get customer info value with default
     def get_param(key, default=None):
+        value = params.get(key)
+        if value is None or value == "None":
+            return default
         if key == "property_type":
             mapping = {
                 "both": ["House", "Apartment"],
                 "apartment": ["Apartment"],
                 "house": ["House"]
             }
-            return mapping.get(key.lower())
+            return mapping.get(value.lower(), [])
         if key == "has_child":
             key_words = ["baby", "child", "son", "daughter", "family", "kid"]
-            if any([kw in str(st.session_state.customer_info).lower() for kw in key_words]):
+            if any([kw in str(value).lower() for kw in key_words]):
                 return True
-        return params.get(key, default)
+        return value
 
     with pages:
         if pages.current == 0:
@@ -191,19 +198,21 @@ def run_survey():
                 value=get_param("additional_notes", "Bright light with good storage")
             )
             st.session_state.form_results.update({
+                "motivation": motivation,
                 "num_bedrooms": num_bedrooms,
                 "max_price": max_price,
                 "property_type": property_type,
                 "min_lease_year": min_lease_year,
-                "user_preference": user_preference
+                "user_preference": user_preference,
             })
 
         elif pages.current == 1:
             st.markdown("<h3>Location preference & your lifestyle</h3>", unsafe_allow_html=True)
-            timeline = st.text_input(
-                'When do you expect to complete the buy? i.e. the exchange date?',
-                value=get_param("timeline", "within 12 months")
+            timeline = survey.multiselect(
+                "When do you expect to complete the buy? i.e. the exchange date?",
+                options=["in 6 months", "in 12 months", "not sure"],
             )
+
             preferred_location = st.text_input(
                 'Do you have a preferred location? i.e. "West London" or "Finsbury Park"',
                 value=get_param("preferred_location", "London")
@@ -254,10 +263,10 @@ def run_survey():
 def main():
     initialize_session_state()
     
-    # Get the current URL path
-    current_path = st.query_params.get("path", "")
+    # Get the current page from query parameters
+    current_page = st.query_params.get("page", "")
     
-    if current_path == "/preferences":
+    if current_page == "preferences":
         run_survey()
     else:
         run_chat()
