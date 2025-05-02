@@ -125,6 +125,10 @@ def run_survey():
                 "house": ["House"]
             }
             return mapping.get(key.lower())
+        if key == "has_child":
+            key_words = ["baby", "child", "son", "daughter", "family", "kid"]
+            if any([kw in str(st.session_state.customer_info).lower() for kw in key_words]):
+                return True
         return st.session_state.customer_info.get(key, default)
 
     with pages:
@@ -152,7 +156,7 @@ def run_survey():
             property_type = survey.multiselect(
                 "Type of property, select all that applies:", 
                 options=["House", "Apartment"],
-                default=[get_customer_info("property_type", "Apartment")]
+                default=get_customer_info("property_type", "Apartment")
             )
             min_lease_year = None
             if "Apartment" in property_type:
@@ -192,7 +196,7 @@ def run_survey():
             has_child = survey.selectbox(
                 "Do you have children or plan to have a child soon?", 
                 options=["Yes", "No"],
-                index=0 if get_customer_info("is_buying_alone", False) else 1
+                index=0 if get_customer_info("has_child", False) else 1
             )
             has_pet = survey.selectbox(
                 "Do you have pets or plan to have a pet soon?", 
