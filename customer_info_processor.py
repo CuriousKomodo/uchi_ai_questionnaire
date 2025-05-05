@@ -8,6 +8,7 @@ import os
 # Load environment variables
 load_dotenv()
 # os.environ['SSL_CERT_FILE'] = "/etc/ssl/cert.pem"
+os.environ.pop("SSL_CERT_FILE", None)
 
 # Define the structured schema for customer information
 class CustomerInfo(TypedDict):

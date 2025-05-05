@@ -1,3 +1,4 @@
+import os
 from typing import TypedDict, Annotated, Sequence, Dict
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
@@ -7,7 +8,9 @@ import json
 
 # Load environment variables
 load_dotenv()
-# os.environ['SSL_CERT_FILE'] = "/etc/ssl/cert.pem"
+
+os.environ.pop("SSL_CERT_FILE", None)
+
 
 # Define the state schema
 class AgentState(TypedDict):
