@@ -99,7 +99,7 @@ def run_chat():
                     params = {
                         "name": customer_info.get("first_name", ""),
                         "email": customer_info.get("email", ""),
-                        "has_child": str(customer_info.get("is_buying_alone", False)).lower(),
+                        "has_child": str(customer_info.get("has_children", False)).lower(),
                         "has_pet": "false",
                         "preferred_location": customer_info.get("preferred_location", ""),
                         "additional_notes": customer_info.get("additional_notes", ""),
@@ -230,7 +230,7 @@ def run_survey():
                 value=get_param("preferred_location", ""),
             )
             has_child = survey.selectbox(
-                "Do you have children or plan to have a child soon?", 
+                "👶🏼Do you have children or plan to have a child soon?",
                 options=["Yes", "No"],
                 index=0 if get_param("has_child") == "true" else 1
             )
@@ -238,18 +238,17 @@ def run_survey():
             if has_child == "Yes":
                 # Are you looking for schools?
                 school_types = survey.multiselect(
-                    "Are you looking for nursery/schools? If yes, select all that applies.",
+                    "🏫Are you looking for nursery/schools? If yes, select all that applies.",
                     options=["Nursery", "Primary", "Secondary"],
-                    default=[]
                 )
 
             has_pet = survey.selectbox(
-                "Do you have pets or plan to have a pet soon?", 
+                "Do you have pets or plan to have a pet soon? 🐾",
                 options=["Yes", "No"],
                 index=1
             )
             hobbies = st.text_area(
-                "What are your hobbies?", 
+                "What are your hobbies? 🎾🛍️",
                 value="E.g. I like to play tennis"
             )
             st.session_state.form_results.update({
