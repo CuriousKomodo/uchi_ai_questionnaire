@@ -37,7 +37,6 @@ class CustomerInfoProcessor:
         Extract the following information and format it as a JSON object:
         {
             "first_name": str,  # Customer's first name
-            "last_name": str,   # Customer's last name
             "email": str,       # Customer's email address
             "motivation": str,  # Why they want to buy a property
             "is_first_time_buyer": bool,  # Whether they're first-time buyers
@@ -80,6 +79,7 @@ class CustomerInfoProcessor:
         """Generate a signup URL with the customer information as parameters."""
         base_url = os.getenv("UCHI_SIGNUP_URL")
         params = {
+            "first_name": customer_info["first_name"],
             "motivation": customer_info["motivation"],
             "is_first_time_buyer": str(customer_info["is_first_time_buyer"]).lower(),
             "is_buying_alone": str(customer_info["is_buying_alone"]).lower(),

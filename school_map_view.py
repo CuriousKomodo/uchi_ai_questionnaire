@@ -4,7 +4,6 @@ from streamlit_folium import st_folium
 
 # TODO: This is a teaser sample
 def school_map_view():
-
     locations = [
         {"name": "Primary school 1", "lat": 51.5007, "lon": -0.1246, "school": True, "info": "Primary school 1 in Fincheley, state, outstanding ⭐"},
         {"name": "Property 2", "lat": 51.5081, "lon": -0.0759, "school": False, "info": "£700000, 4 bedrooms"},

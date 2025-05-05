@@ -162,8 +162,8 @@ def run_survey():
     with pages:
         if pages.current == 0:
             st.markdown("<h3>Tell us what you are looking for?</h3>", unsafe_allow_html=True)
-            if get_param("first_name"):
-                st.markdown(f"Hello {get_param('first_name')}, let's get you signed up.")
+            if get_param("name"):
+                st.markdown(f"Hello {get_param('name')}, let's get you signed up.")
 
             motivation = st.text_area(
                 "What is your reason for buying a property?",
@@ -215,9 +215,10 @@ def run_survey():
 
         elif pages.current == 1:
             st.markdown("<h3>Location preference & your lifestyle</h3>", unsafe_allow_html=True)
-            timeline = survey.multiselect(
+            timeline = survey.selectbox(
                 "When do you expect to complete the buy? i.e. the exchange date?",
                 options=["in 6 months", "in 12 months", "not sure"],
+                placeholder=get_param("timeline", "in 12 months")
             )
 
             preferred_location = st.text_input(
@@ -254,7 +255,7 @@ def run_survey():
             st.markdown("<h3>Complete the registration</h3>", unsafe_allow_html=True)
             first_name = st.text_input(
                 "What's your first name?",
-                value=get_param("first_name", "")
+                value=get_param("name", "")
             )
             email = st.text_input(
                 "Enter your email",
