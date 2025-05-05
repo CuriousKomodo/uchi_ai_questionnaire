@@ -7,7 +7,7 @@ import json
 
 # Load environment variables
 load_dotenv()
-os.environ['SSL_CERT_FILE'] = "/etc/ssl/cert.pem"
+# os.environ['SSL_CERT_FILE'] = "/etc/ssl/cert.pem"
 
 # Define the state schema
 class AgentState(TypedDict):
