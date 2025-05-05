@@ -111,7 +111,7 @@ def run_chat():
                     }
                     
                     # Create the survey URL
-                    base_url = st.query_params.get("base_url", "http://localhost:8501")
+                    base_url = st.secrets["BASE_URL"]
                     survey_url = f"{base_url}?page=preferences&{urlencode(params)}"
                     
                     # Show the register button with the survey URL
@@ -200,7 +200,7 @@ def run_survey():
                     value=150
                 )
             user_preference = st.text_area(
-                "Tell us about the desired features of your dream home?", 
+                "Tell us about all the desired features & requirements of your dream home?",
                 value=get_param("additional_notes", "Bright light with good storage")
             )
             st.session_state.form_results.update({
@@ -234,6 +234,15 @@ def run_survey():
                 options=["Yes", "No"],
                 index=0 if get_param("has_child") == "true" else 1
             )
+            school_types = []
+            if has_child == "Yes":
+                # Are you looking for schools?
+                school_types = survey.multiselect(
+                    "Are you looking for nursery/schools? If yes, select all that applies.",
+                    options=["Nursery", "Primary", "Secondary"],
+                    default=[]
+                )
+
             has_pet = survey.selectbox(
                 "Do you have pets or plan to have a pet soon?", 
                 options=["Yes", "No"],
@@ -244,6 +253,7 @@ def run_survey():
                 value="E.g. I like to play tennis"
             )
             st.session_state.form_results.update({
+                "school_types": school_types,
                 "preferred_location": preferred_location,
                 "timeline": timeline,
                 "workplace_location": workplace_location,
