@@ -22,7 +22,8 @@ class RecommendationProcessor:
         
         # Show loading content
         with loading_placeholder.container():
-            st.info("🔄 Processing your submission... This may take up to 10 seconds.")
+            st.write("<h3>We are searching based on your preference ✨</h3>", unsafe_allow_html=True)
+            st.info("🔄 This may take up to 10 seconds.")
             gif_url = self.git_service.get_working_hard_gif()
             st.image(gif_url, width=400)
         
