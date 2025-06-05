@@ -5,9 +5,9 @@ from datetime import datetime
 from typing import Dict, Any, List
 
 
-class SubmissionProcessor:
-    def __init__(self, api_endpoint: str):
-        self.api_endpoint = api_endpoint
+class RecommendationProcessor:
+    def __init__(self):
+        self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
     
     def submit_and_wait(self, submission_data: Dict[str, Any]):
         """
@@ -28,7 +28,7 @@ class SubmissionProcessor:
                     }
                     
                     response = requests.post(
-                        self.api_endpoint,
+                        self.url,
                         json=payload,
                         headers={'Content-Type': 'application/json'},
                         timeout=30
@@ -52,10 +52,8 @@ class SubmissionProcessor:
             
             if result_container["error"]:
                 st.error(f"❌ Error: {result_container['error']}")
-            elif result_container["result"]:
-                self._display_results(result_container["result"])
             else:
-                st.error("❌ No response received")
+                self._display_results(result_container.get("result"))
     
     def _display_results(self, data: List[Dict[str, Any]]):
         """Display the API results"""

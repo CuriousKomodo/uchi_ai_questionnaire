@@ -7,7 +7,7 @@ from langchain_agents import get_response
 from customer_info_processor import CustomerInfoProcessor, CustomerInfo
 from gif_service import GifService
 from connection.firestore import FireStore
-from submission_processor import SubmissionProcessor
+from submission_processor import RecommendationProcessor
 from urllib.parse import parse_qs, urlencode
 
 
@@ -30,9 +30,7 @@ def initialize_session_state():
     if "form_results" not in st.session_state:
         st.session_state.form_results = {}
     if "submission_processor" not in st.session_state:
-        # Initialize with your external API endpoint
-        api_endpoint = st.secrets.get("EXTERNAL_API_ENDPOINT", "https://your-api.com/process_submission")
-        st.session_state.submission_processor = SubmissionProcessor(api_endpoint)
+        st.session_state.recommendation_processor = RecommendationProcessor()
 
 def run_chat():
     st.title("🤖Chat with Uchi AI")
@@ -149,7 +147,7 @@ def run_survey():
         st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
         
         # Process with external API
-        st.session_state.submission_processor.submit_and_wait(st.session_state.form_results)
+        st.session_state.recommendation_processor.submit_and_wait(st.session_state.form_results)
 
     # Helper function to get customer info value with default
     def get_param(key, default=None):
