@@ -12,7 +12,7 @@ class RecommendationProcessor:
         self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
         self.git_service = GifService()
     
-    def submit_and_wait(self, submission_data: Dict[str, Any]):
+    def submit_and_wait(self, submission_id: str):
         """
         Submit data to external API and display results when ready
         """
@@ -32,8 +32,7 @@ class RecommendationProcessor:
         def make_request():
             try:
                 payload = {
-                    "data": submission_data,
-                    "timestamp": datetime.now().isoformat()
+                    "submission_id": submission_id,
                 }
                 
                 response = requests.post(

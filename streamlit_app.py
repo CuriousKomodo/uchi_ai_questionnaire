@@ -140,14 +140,14 @@ def run_survey():
     def on_submit():
         # Save to Firestore
         firestore = FireStore(credential_info=st.secrets["firestore_credentials"])
-        firestore.insert_submission(st.session_state.form_results)
+        submission_id = firestore.insert_submission(st.session_state.form_results)
         
         # Show immediate feedback
         st.success("Submitted!")
         st.write("<h3>We will start the search ✨</h3>", unsafe_allow_html=True)
         
         # Process with external API
-        st.session_state.recommendation_processor.submit_and_wait(st.session_state.form_results)
+        st.session_state.recommendation_processor.submit_and_wait(submission_id)
 
     # Helper function to get customer info value with default
     def get_param(key, default=None):
