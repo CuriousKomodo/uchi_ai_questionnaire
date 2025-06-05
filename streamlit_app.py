@@ -7,6 +7,7 @@ from langchain_agents import get_response
 from customer_info_processor import CustomerInfoProcessor, CustomerInfo
 from gif_service import GifService
 from connection.firestore import FireStore
+from submission_processor import SubmissionProcessor
 from urllib.parse import parse_qs, urlencode
 
 
@@ -28,6 +29,10 @@ def initialize_session_state():
         st.session_state.form_submitted = False
     if "form_results" not in st.session_state:
         st.session_state.form_results = {}
+    if "submission_processor" not in st.session_state:
+        # Initialize with your external API endpoint
+        api_endpoint = st.secrets.get("EXTERNAL_API_ENDPOINT", "https://your-api.com/process_submission")
+        st.session_state.submission_processor = SubmissionProcessor(api_endpoint)
 
 def run_chat():
     st.title("🤖Chat with Uchi AI")
@@ -135,11 +140,16 @@ def run_survey():
     pages = survey.pages(3, progress_bar=True, on_submit=lambda: on_submit())
 
     def on_submit():
-        st.success("Submitted!")
-        st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
+        # Save to Firestore
         firestore = FireStore(credential_info=st.secrets["firestore_credentials"])
         firestore.insert_submission(st.session_state.form_results)
-        st.session_state.form_submitted = True
+        
+        # Show immediate feedback
+        st.success("Submitted!")
+        st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
+        
+        # Process with external API
+        st.session_state.submission_processor.submit_and_wait(st.session_state.form_results)
 
     # Helper function to get customer info value with default
     def get_param(key, default=None):
