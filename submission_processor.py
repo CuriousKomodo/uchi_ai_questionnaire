@@ -16,45 +16,51 @@ class RecommendationProcessor:
         """
         Submit data to external API and display results when ready
         """
-        # Show loading state
-        with st.spinner("🔄 Processing your submission... This may take up to 10 seconds."):
+        # Create placeholders for loading and results
+        loading_placeholder = st.empty()
+        results_placeholder = st.empty()
+        
+        # Show loading content
+        with loading_placeholder.container():
+            st.info("🔄 Processing your submission... This may take up to 10 seconds.")
             gif_url = self.git_service.get_working_hard_gif()
             st.image(gif_url, width=400)
-            placeholder = st.empty()
-            
-            # Make the request in a separate thread
-            result_container = {"result": None, "error": None}
-            
-            def make_request():
-                try:
-                    payload = {
-                        "data": submission_data,
-                        "timestamp": datetime.now().isoformat()
-                    }
+        
+        # Make the request in a separate thread
+        result_container = {"result": None, "error": None}
+        
+        def make_request():
+            try:
+                payload = {
+                    "data": submission_data,
+                    "timestamp": datetime.now().isoformat()
+                }
+                
+                response = requests.post(
+                    self.url,
+                    json=payload,
+                    headers={'Content-Type': 'application/json'},
+                    timeout=30
+                )
+                
+                if response.status_code == 200:
+                    result_container["result"] = response.json().get("matched_properties")
+                else:
+                    result_container["error"] = f"API error: {response.status_code}"
                     
-                    response = requests.post(
-                        self.url,
-                        json=payload,
-                        headers={'Content-Type': 'application/json'},
-                        timeout=30
-                    )
-                    
-                    if response.status_code == 200:
-                        result_container["result"] = response.json().get("matched_properties")
-                    else:
-                        result_container["error"] = f"API error: {response.status_code}"
-                        
-                except Exception as e:
-                    result_container["error"] = str(e)
-            
-            # Start the request
-            thread = threading.Thread(target=make_request)
-            thread.start()
-            thread.join()  # Wait for completion
-            
-            # Display results
-            placeholder.empty()
-            
+            except Exception as e:
+                result_container["error"] = str(e)
+        
+        # Start the request
+        thread = threading.Thread(target=make_request)
+        thread.start()
+        thread.join()  # Wait for completion
+        
+        # Clear the loading content (including GIF)
+        loading_placeholder.empty()
+        
+        # Display results
+        with results_placeholder.container():
             if result_container["error"]:
                 st.error(f"❌ Error: {result_container['error']}")
             else:
@@ -62,7 +68,6 @@ class RecommendationProcessor:
     
     def _display_results(self, data: List[Dict[str, Any]]):
         """Display the API results"""
-        st.success("✅ Processing completed!")
         
         # Handle the matched properties data structure
         if isinstance(data, list) and len(data) > 0:
@@ -71,7 +76,7 @@ class RecommendationProcessor:
             num_properties = len(properties)
             
             # Show summary
-            st.subheader(f"🎉 Great news! We found {num_properties} properties that match your criteria")
+            st.markdown(f"<h5>🎉Great news! We found {num_properties} properties that match your criteria</h5>", unsafe_allow_html=True)
             
             # Get the first (best) property for the matched criteria display
             best_property = properties[0]
