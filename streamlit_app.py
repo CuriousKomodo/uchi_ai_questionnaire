@@ -144,7 +144,7 @@ def run_survey():
         
         # Show immediate feedback
         st.success("Submitted!")
-        st.write("<h3>We will start the search. Stay tuned! ✨</h3>", unsafe_allow_html=True)
+        st.write("<h3>We will start the search ✨</h3>", unsafe_allow_html=True)
         
         # Process with external API
         st.session_state.recommendation_processor.submit_and_wait(st.session_state.form_results)

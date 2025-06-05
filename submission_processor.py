@@ -4,10 +4,13 @@ import threading
 from datetime import datetime
 from typing import Dict, Any, List
 
+from gif_service import GifService
+
 
 class RecommendationProcessor:
     def __init__(self):
         self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
+        self.git_service = GifService()
     
     def submit_and_wait(self, submission_data: Dict[str, Any]):
         """
@@ -15,6 +18,8 @@ class RecommendationProcessor:
         """
         # Show loading state
         with st.spinner("🔄 Processing your submission... This may take up to 10 seconds."):
+            gif_url = self.git_service.get_working_hard_gif()
+            st.image(gif_url, width=400)
             placeholder = st.empty()
             
             # Make the request in a separate thread

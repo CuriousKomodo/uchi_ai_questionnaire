@@ -32,3 +32,7 @@ class GifService:
     def get_greeting_gif(self) -> str:
         """Get a random celebration GIF."""
         return self.get_random_gif("hello there")
+
+    def get_working_hard_gif(self) -> str:
+        """Get a random celebration GIF."""
+        return self.get_random_gif(random.choice(["cat_typing", "cat_working"]))
