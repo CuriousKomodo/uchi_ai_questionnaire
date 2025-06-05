@@ -28,11 +28,15 @@ class FireStore:
 
         # Store the submission
         results.update({'created_at': datetime.now()})
-        self.db.collection('submissions').add({
+        _, submission_record = self.db.collection('submissions').add({
             "user_id": user_id,
             'email': results["email"],
             'content': results,
         })
+        
+        # Return the submission document ID
+        submission_id = submission_record.path.split("/")[-1]
+        return submission_id
 
     def list_all_users(self) -> List[Dict]:
         users_stream = self.db.collection('users').stream()
