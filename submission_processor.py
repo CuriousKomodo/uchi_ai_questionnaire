@@ -97,7 +97,8 @@ class RecommendationProcessor:
             st.write("")
 
         else:
-            st.markdown("<h5> Your personal recommendations will be shown on the dashboard.")
+            st.markdown("<h5> We haven't found any suitable properties that got listed in the last 7 days. "
+                        "But we will let you know as soon as possible. Please keep an eye for our weekly mailing list.📧 </h5>", unsafe_allow_html=True)
 
         # Link button to dashboard
         dashboard_url = st.secrets.get("DASHBOARD_URL", "https://your-dashboard.com")
