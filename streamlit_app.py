@@ -9,6 +9,7 @@ from gif_service import GifService
 from connection.firestore import FireStore
 from submission_processor import RecommendationProcessor
 from urllib.parse import parse_qs, urlencode
+from utils import is_strong_password
 
 
 def initialize_session_state():
@@ -276,11 +277,21 @@ def run_survey():
                 "Enter your email",
                 value=get_param("email", "")
             )
-            password = st.text_input("Enter your password")
+            password = st.text_input("Enter your password", type="password")
+            password_confirm = st.text_input("Re-enter your password", type="password")
+            password_error = None
+            if password or password_confirm:
+                if password != password_confirm:
+                    password_error = "Passwords do not match."
+                elif not is_strong_password(password):
+                    password_error = "Password must be at least 8 characters, include upper and lower case letters, a number, and a special character."
+            if password_error:
+                st.error(password_error)
+            
             st.session_state.form_results.update({
                 "email": email,
                 "first_name": first_name,
-                "password": password
+                "password": password if not password_error else None
             })
 
 def main():
