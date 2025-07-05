@@ -40,7 +40,7 @@ class RecommendationProcessor:
                     self.url,
                     json=payload,
                     headers={'Content-Type': 'application/json'},
-                    timeout=30
+                    timeout=10
                 )
                 
                 if response.status_code == 200:
@@ -62,7 +62,7 @@ class RecommendationProcessor:
         # Display results
         with results_placeholder.container():
             if result_container["error"]:
-                st.error(f"❌ Error: {result_container['error']}")
+                st.markdown(f"Looks like the search might take a little bit longer - we will send an email when it's ready!")
             else:
                 self._display_results(result_container.get("result"))
     

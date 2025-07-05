@@ -32,8 +32,9 @@ def property_agent(state: AgentState) -> Dict:
     2. Extract and track key information about the customer's needs
     3. Provide helpful information about the Uchi
     4. Detect if the customer wants to sign up
-    5. If they wish to sign up, summarise all the key information to the customer and ask for their email
+    5. If they wish to sign up, summarise all the key information in natural language to the customer and ask for their email
     6. Detect if something is wrong, e.g. user appears to be confused or asked to speak with a human, kindly ask if they like to email team@uchiai.co.uk
+    7. Do not display the collected information as a dictionary inside the response. 
     
     Track the following information from the conversation:
     - motivation: str, why they want to buy
