@@ -14,7 +14,7 @@ load_dotenv()
 
 # os.environ.pop("SSL_CERT_FILE", None)
 
-client = AzureClient(chat_completion_model="gpt-4.1")
+client = AzureClient(chat_completion_model="gpt-4o-mini")
 
 # Define the state schema
 class AgentState(TypedDict):
@@ -52,7 +52,7 @@ def property_agent(state: AgentState) -> Dict:
     Make sure they are all extracted before you ask the customer if they like to sign up with an email. 
     
     **Requirements on your tone**
-    Keep responses friendly and conversational. Ask one question at a time. Greet the customer with their first name is given. 
+    Keep responses friendly and conversational. Ask 2 or 3 questions at a time. Greet the customer with their first name is given. 
     Avoid sales language and be helpful.
     
     **Product information about Uchi AI**
@@ -78,19 +78,16 @@ def property_agent(state: AgentState) -> Dict:
     formatted_messages = [
         {"role": "system", "content": system_prompt}
     ]
-    # for msg in messages:
-    #     role = "user" if isinstance(msg, HumanMessage) else "assistant"
-    #     formatted_messages.append({"role": role, "content": msg["content"]})
-
-    if isinstance(messages[-1], HumanMessage):
-        formatted_messages.append({"role": "customer", "content": messages[-1]})
-        print(messages[-1])
+    for msg in messages:
+        role = "user" if isinstance(msg, HumanMessage) else "assistant"
+        formatted_messages.append({"role": role, "content": msg["content"]})
 
     # Generate response
     response = client.get_chat_completion(formatted_messages)
     try:
         # Parse the response as JSON
         parsed_response = json.loads(response['content'])
+        print(parsed_response)
         return {
             "response": parsed_response["response"].replace("\n", "<br>"),
             "customer_info": parsed_response["extracted_info"],
