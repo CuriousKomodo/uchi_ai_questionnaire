@@ -1,16 +1,20 @@
 import os
 from typing import TypedDict, Annotated, Sequence, Dict
+
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import os
 import json
 
+from connection.azure_client import AzureClient
+
 # Load environment variables
 load_dotenv()
 
 os.environ.pop("SSL_CERT_FILE", None)
 
+client = AzureClient()
 
 # Define the state schema
 class AgentState(TypedDict):
@@ -18,8 +22,6 @@ class AgentState(TypedDict):
     customer_info: Annotated[dict, "Customer information extracted from conversation"]
     wants_to_signup: Annotated[bool, "Would the customer like to signup?"]
 
-# Initialize the language model
-llm = ChatOpenAI(model="gpt-4")
 
 def property_agent(state: AgentState) -> Dict:
     """Agent that handles property search conversations."""
@@ -79,10 +81,10 @@ def property_agent(state: AgentState) -> Dict:
         formatted_messages.append({"role": role, "content": msg["content"]})
     
     # Generate response
-    response = llm.invoke(formatted_messages)
+    response = client.get_chat_completion(messages)
     try:
         # Parse the response as JSON
-        parsed_response = json.loads(response.content)
+        parsed_response = json.loads(response['content'])
         return {
             "response": parsed_response["response"].replace("\n", "<br>"),
             "customer_info": parsed_response["extracted_info"],
