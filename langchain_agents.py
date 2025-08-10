@@ -14,7 +14,7 @@ load_dotenv()
 
 os.environ.pop("SSL_CERT_FILE", None)
 
-client = AzureClient()
+client = AzureClient(chat_completion_model="gpt-4.1")
 
 # Define the state schema
 class AgentState(TypedDict):
@@ -28,7 +28,7 @@ def property_agent(state: AgentState) -> Dict:
     messages = state["messages"]
     # Create the system prompt
     system_prompt = """
-    You are an AI asistant for a startup called Uchi. You are here to helping customers find properties to buy. 
+    You are an AI assistant for a startup called Uchi. You are here to helping customers find properties to buy. 
     Your role is to:
     1. Engage in natural conversation about property search
     2. Extract and track key information about the customer's needs
@@ -72,16 +72,16 @@ def property_agent(state: AgentState) -> Dict:
     - "wants_to_signup": boolean, whether the customer showed interest to sign up
     """
     
-    # Convert messages to the format expected by the LLM
+
     formatted_messages = [
         {"role": "system", "content": system_prompt}
     ]
     for msg in messages:
         role = "user" if isinstance(msg, HumanMessage) else "assistant"
-        formatted_messages.append({"role": role, "content": msg["content"]})
+        formatted_messages.append({"role": role, "content": msg.content})
     
     # Generate response
-    response = client.get_chat_completion(messages)
+    response = client.get_chat_completion(formatted_messages)
     try:
         # Parse the response as JSON
         parsed_response = json.loads(response['content'])
@@ -93,7 +93,7 @@ def property_agent(state: AgentState) -> Dict:
     except json.JSONDecodeError:
         # Fallback if JSON parsing fails
         return {
-            "response": response.content,
+            "response": response["content"],
             "customer_info": state.get("customer_info", {})
         }
 
@@ -106,9 +106,8 @@ def get_response(messages: Sequence[BaseMessage], customer_info: Dict = {}) -> D
     return property_agent(state)
 
 
-# Have another agent to extract all the fields from the conversation into a structure format
+# Have another agent to extract all the fields from the conversation into a structure format?
 if __name__ == "__main__":
-    # Example usage
     messages = [
         HumanMessage(content="I am looking for a property"),
         AIMessage(content="Hello! I'm Uchi AI, your personal property search assistant. What's your first name?"),

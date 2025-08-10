@@ -11,14 +11,14 @@ from utils import retry
 load_dotenv()
 
 class AzureClient:
-    def __init__(self):
+    def __init__(self, chat_completion_model="gpt-4.1"):
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
         
         # Model deployments
         self.embedding_deployment = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-small")
-        self.chat_deployment = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT", "gpt-4o-mini")
+        self.chat_deployment = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT", chat_completion_model)
         
         if not all([self.endpoint, self.api_key]):
             raise ValueError("Missing required environment variables: AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY")
