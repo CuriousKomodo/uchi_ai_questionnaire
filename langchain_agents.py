@@ -78,10 +78,14 @@ def property_agent(state: AgentState) -> Dict:
     formatted_messages = [
         {"role": "system", "content": system_prompt}
     ]
-    for msg in messages:
-        role = "user" if isinstance(msg, HumanMessage) else "assistant"
-        formatted_messages.append({"role": role, "content": msg["content"]})
-    
+    # for msg in messages:
+    #     role = "user" if isinstance(msg, HumanMessage) else "assistant"
+    #     formatted_messages.append({"role": role, "content": msg["content"]})
+
+    if isinstance(messages[-1], HumanMessage):
+        formatted_messages.append({"role": "customer", "content": messages[-1]})
+        print(messages[-1])
+
     # Generate response
     response = client.get_chat_completion(formatted_messages)
     try:

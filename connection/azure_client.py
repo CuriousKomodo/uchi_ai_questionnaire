@@ -18,7 +18,7 @@ class AzureClient:
 
         # Model deployments
         self.embedding_deployment = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-small")
-        self.chat_deployment = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT", chat_completion_model)
+        self.chat_deployment = chat_completion_model
         
         if not all([self.endpoint, self.api_key]):
             raise ValueError("Missing required environment variables: AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY")
@@ -28,6 +28,11 @@ class AzureClient:
             azure_endpoint=self.endpoint,
             api_key=self.api_key
         )
+        # self.client = AzureChatOpenAI(
+        #     api_version=self.api_version,
+        #     azure_endpoint=self.endpoint,
+        #     api_key=self.api_key
+        # )
 
     @retry(ExceptionToCheck=Exception, tries=3, delay=30, backoff=2)
     def get_embeddings(self, texts: List[str]) -> List[list[float]]:
