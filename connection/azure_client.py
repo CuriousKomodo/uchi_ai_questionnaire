@@ -15,7 +15,7 @@ class AzureClient:
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.api_version = os.getenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
-        
+
         # Model deployments
         self.embedding_deployment = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-small")
         self.chat_deployment = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT", chat_completion_model)
