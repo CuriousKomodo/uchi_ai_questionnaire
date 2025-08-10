@@ -66,7 +66,8 @@ def run_chat():
         with st.chat_message("assistant"):
             new_state = get_response(
                 messages=st.session_state.messages,
-                customer_info=st.session_state.customer_info
+                customer_info=st.session_state.customer_info,
+                wants_to_signup=st.session_state.wants_to_signup,
             )
             response = new_state["response"]
             st.session_state.messages.append({"role": "assistant", "content": response})

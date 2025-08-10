@@ -12,7 +12,7 @@ from connection.azure_client import AzureClient
 # Load environment variables
 load_dotenv()
 
-os.environ.pop("SSL_CERT_FILE", None)
+# os.environ.pop("SSL_CERT_FILE", None)
 
 client = AzureClient(chat_completion_model="gpt-4.1")
 
@@ -27,7 +27,7 @@ def property_agent(state: AgentState) -> Dict:
     """Agent that handles property search conversations."""
     messages = state["messages"]
     # Create the system prompt
-    system_prompt = """
+    system_prompt = f"""
     You are an AI assistant for a startup called Uchi. You are here to helping customers find properties to buy. 
     Your role is to:
     1. Engage in natural conversation about property search
@@ -70,15 +70,17 @@ def property_agent(state: AgentState) -> Dict:
     - "response": your conversational response to the user, keep "response" within 150 words, use line breaks like \n or bullet points  
     - "extracted_info": all the information you've extracted so far, including from the latest message
     - "wants_to_signup": boolean, whether the customer showed interest to sign up
-    """
     
-
+    Information collected so far: 
+    Customer information: {state['customer_info']}
+    Are they interested in signing up yet? {state['wants_to_signup']}
+    """
     formatted_messages = [
         {"role": "system", "content": system_prompt}
     ]
     for msg in messages:
         role = "user" if isinstance(msg, HumanMessage) else "assistant"
-        formatted_messages.append({"role": role, "content": msg.content})
+        formatted_messages.append({"role": role, "content": msg["content"]})
     
     # Generate response
     response = client.get_chat_completion(formatted_messages)
@@ -91,17 +93,17 @@ def property_agent(state: AgentState) -> Dict:
             "wants_to_signup": parsed_response["wants_to_signup"],
         }
     except json.JSONDecodeError:
-        # Fallback if JSON parsing fails
         return {
             "response": response["content"],
             "customer_info": state.get("customer_info", {})
         }
 
-def get_response(messages: Sequence[BaseMessage], customer_info: Dict = {}) -> Dict:
+def get_response(messages: Sequence[BaseMessage], customer_info: Dict = {}, wants_to_signup: bool = None) -> Dict:
     """Get a response from the agent for the given messages."""
     state = AgentState(
         messages=messages,
-        customer_info=customer_info
+        customer_info=customer_info,
+        wants_to_signup=wants_to_signup
     )
     return property_agent(state)
 
