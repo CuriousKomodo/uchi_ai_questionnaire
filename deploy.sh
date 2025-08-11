@@ -20,7 +20,7 @@ gcloud auth configure-docker $REGION-docker.pkg.dev
 
 # Build and push image
 echo "🔨 Building and pushing image..."
-docker build -t $IMAGE_NAME .
+docker build --platform linux/amd64 -t $IMAGE_NAME .
 docker push $IMAGE_NAME
 
 # Deploy to Cloud Run

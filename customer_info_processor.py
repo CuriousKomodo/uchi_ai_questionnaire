@@ -28,7 +28,7 @@ class CustomerInfo(TypedDict):
 
 class CustomerInfoProcessor:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4")
+        self.llm = ChatOpenAI(model="gpt-4o-mini")  # TODO: swtich this to AzureOpenAI
         
     def process_conversation(self, messages: List[BaseMessage]) -> CustomerInfo:
         """Process the conversation and extract structured customer information."""
