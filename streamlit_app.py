@@ -18,8 +18,6 @@ def initialize_session_state():
         st.session_state.messages = []
     if "customer_info" not in st.session_state:
         st.session_state.customer_info = {}
-    if "conversation_started" not in st.session_state:
-        st.session_state.conversation_started = False
     if "wants_to_signup" not in st.session_state:
         st.session_state.wants_to_signup = False
     if "info_processor" not in st.session_state:
@@ -38,7 +36,7 @@ def run_chat():
 
     if not st.session_state.messages:
         with st.chat_message("assistant"):
-            st.markdown("Hello! I am an <b>AI assistant</b> for Uchi. It's my first day at work", unsafe_allow_html=True)
+            st.markdown("Hello! I am an <b>AI assistant</b> for Uchi.", unsafe_allow_html=True)
         time.sleep(1)
         try:
             gif_url = st.session_state.gif_service.get_greeting_gif()
@@ -47,8 +45,8 @@ def run_chat():
             print(str(e))
 
         time.sleep(1)
-        with st.chat_message("assistant"):
-            st.markdown("What is your name ? And what brought you here today? 😊")
+        greeting = "What is your name ? And what brought you here today? 😊"
+        st.session_state.messages.append({"role": "assistant", "content": greeting})
 
     # Display chat messages
     for message in st.session_state.messages:
@@ -84,7 +82,7 @@ def run_chat():
                     try:
                         gif_url = st.session_state.gif_service.get_celebration_gif()
                         st.image(gif_url, width=400)
-                        st.markdown("🎉 Great! Let's get you registered!")
+                        st.markdown("Great! Let's finish your registration, give me 2 seconds...")
                     except Exception as e:
                         print(f"Error displaying GIF: {str(e)}")
 
@@ -99,7 +97,7 @@ def run_chat():
                 # Process the conversation
                 try:
                     customer_info = st.session_state.info_processor.process_conversation(base_messages)
-                    # st.session_state.customer_info = customer_info
+                    st.session_state.customer_info = customer_info
                     
                     # Generate URL parameters for the survey
                     params = {

@@ -46,7 +46,7 @@ class CustomerInfoProcessor:
             "is_buying_alone": bool,      # Whether they're buying alone or with someone
             "preferred_location": str,     # Their preferred location/area
             "maximum_budget": int,           # Their maximum budget in thousands GBP
-            "property_type": str,          # Are they looking for "apartment", a "house" or "both"?
+            "property_type": str,          # Are they looking for "apartment", a "house" or "both"? 
             "number_of_rooms": int,          # Minimum number of rooms 
             "timeline": str,             # When are they looking to buy, choose from "in 6 months", "in 12 months" OR "not sure"
             "has_children": bool,          # Whether they have child or children
