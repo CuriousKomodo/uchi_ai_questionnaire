@@ -5,6 +5,8 @@ import json
 from dotenv import load_dotenv
 import os
 
+from connection.azure_client import AzureClient
+
 # Load environment variables
 load_dotenv()
 # os.environ['SSL_CERT_FILE'] = "/etc/ssl/cert.pem"
@@ -28,7 +30,7 @@ class CustomerInfo(TypedDict):
 
 class CustomerInfoProcessor:
     def __init__(self):
-        self.llm = ChatOpenAI(model="gpt-4o-mini")  # TODO: swtich this to AzureOpenAI
+        self.client = AzureClient(chat_completion_model="gpt-4o-mini")
         
     def process_conversation(self, messages: List[BaseMessage]) -> CustomerInfo:
         """Process the conversation and extract structured customer information."""
@@ -68,11 +70,10 @@ class CustomerInfoProcessor:
             formatted_messages.append({"role": role, "content": msg.content})
         
         # Generate response
-        response = self.llm.invoke(formatted_messages)
+        response = self.client.get_chat_completion(formatted_messages)
         
         try:
-            # Parse the response as JSON
-            customer_info = json.loads(response.content)
+            customer_info = json.loads(response['content'])
             return CustomerInfo(**customer_info)
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse customer information from conversation due to {str(e)}")

@@ -61,7 +61,7 @@ def run_chat():
         with st.chat_message("user"):
             if "@" in str(prompt) or "sign up" in str(prompt):
                 st.session_state.wants_to_signup = True
-            st.markdown(prompt)
+            st.markdown(prompt, unsafe_allow_html=True)
 
         with st.chat_message("assistant"):
             new_state = get_response(
@@ -71,6 +71,7 @@ def run_chat():
             )
             response = new_state["response"]
             st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.customer_info = new_state["customer_info"]
             if not st.session_state.wants_to_signup:
                 st.session_state.wants_to_signup = new_state.get("wants_to_signup", False)
             st.markdown(response, unsafe_allow_html=True)
@@ -98,7 +99,7 @@ def run_chat():
                 # Process the conversation
                 try:
                     customer_info = st.session_state.info_processor.process_conversation(base_messages)
-                    st.session_state.customer_info = customer_info
+                    # st.session_state.customer_info = customer_info
                     
                     # Generate URL parameters for the survey
                     params = {
@@ -120,7 +121,7 @@ def run_chat():
                     survey_url = f"{base_url}?page=preferences&{urlencode(params)}"
                     
                     # Show the register button with the survey URL
-                    st.link_button("Register with us ✨", url=survey_url, type="primary")
+                    st.link_button("Finish your registration with us! ✨", url=survey_url, type="primary")
                 except Exception as e:
                     st.error(f"Error processing customer information: {str(e)}")
 

@@ -38,7 +38,7 @@ def property_agent(state: AgentState) -> Dict:
     6. Detect if something is wrong, e.g. user appears to be confused or asked to speak with a human, kindly ask if they like to email team@uchiai.co.uk
     7. Do not display the collected information as a dictionary inside the response. 
     
-    Track the following information from the conversation:
+    Extract the following information from the entire conversation:
     - motivation: str, why they want to buy
     - property_type: List[str], such as "apartment" and "house"
     - is_first_time_buyer: bool, whether they're first-time buyers
@@ -68,7 +68,7 @@ def property_agent(state: AgentState) -> Dict:
     **Structure of your response**
     Format your response as a JSON object with two fields:
     - "response": your conversational response to the user, keep "response" within 150 words, use line breaks like \n or bullet points  
-    - "extracted_info": all the information you've extracted so far, including from the latest message
+    - "extracted_info": all the information you've extracted in the conversation, including from the latest message
     - "wants_to_signup": boolean, whether the customer showed interest to sign up
     
     Information collected so far: 
@@ -87,7 +87,6 @@ def property_agent(state: AgentState) -> Dict:
     try:
         # Parse the response as JSON
         parsed_response = json.loads(response['content'])
-        print(parsed_response)
         return {
             "response": parsed_response["response"].replace("\n", "<br>"),
             "customer_info": parsed_response["extracted_info"],
