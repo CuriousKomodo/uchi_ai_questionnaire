@@ -70,7 +70,10 @@ class CustomerInfoProcessor:
             formatted_messages.append({"role": role, "content": msg.content})
         
         # Generate response
-        response = self.client.get_chat_completion(formatted_messages)
+        response = self.client.get_chat_completion(
+            formatted_messages,
+            response_format={"type": "json_object"}
+        )
         
         try:
             customer_info = json.loads(response['content'])
