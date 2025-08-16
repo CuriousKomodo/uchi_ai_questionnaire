@@ -122,6 +122,7 @@ def run_chat():
                     st.link_button("Finish your registration with us! ✨", url=survey_url, type="primary")
                 except Exception as e:
                     st.error(f"Error processing customer information: {str(e)}")
+                    st.link_button("Complete your registration with us. Sorry 😞", url=survey_url, type="primary")
 
             except Exception as e:
                 st.error(f"Error processing customer information: {str(e)}")

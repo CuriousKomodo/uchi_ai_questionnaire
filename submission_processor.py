@@ -34,6 +34,7 @@ class RecommendationProcessor:
             try:
                 payload = {
                     "submission_id": submission_id,
+                    "days_added": 30,
                 }
                 
                 response = requests.post(

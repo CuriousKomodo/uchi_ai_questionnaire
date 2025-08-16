@@ -69,7 +69,8 @@ class AzureClient:
         max_tokens: Optional[int] = None,
         top_p: float = 1.0,
         frequency_penalty: float = 0.0,
-        presence_penalty: float = 0.0
+        presence_penalty: float = 0.0,
+        response_format=None,
     ) -> Dict[str, Any]:
         """
         Get chat completion from Azure OpenAI.
@@ -85,16 +86,29 @@ class AzureClient:
         Returns:
             Dictionary containing completion and metadata
         """
+
         try:
-            response = self.client.chat.completions.create(
-                model=self.chat_deployment,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                top_p=top_p,
-                frequency_penalty=frequency_penalty,
-                presence_penalty=presence_penalty
-            )
+            if response_format:
+                response = self.client.chat.completions.create(
+                    model=self.chat_deployment,
+                    response_format=response_format,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    top_p=top_p,
+                    frequency_penalty=frequency_penalty,
+                    presence_penalty=presence_penalty
+                )
+            else:
+                response = self.client.chat.completions.create(
+                    model=self.chat_deployment,
+                    messages=messages,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    top_p=top_p,
+                    frequency_penalty=frequency_penalty,
+                    presence_penalty=presence_penalty
+                )
             
             return {
                 "content": response.choices[0].message.content,
@@ -153,4 +167,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    client = AzureClient()
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "I want noodles"}
+    ]
+
+    response = client.get_chat_completion(messages)
