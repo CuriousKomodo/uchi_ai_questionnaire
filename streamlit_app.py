@@ -285,7 +285,7 @@ def run_survey():
                 if password != password_confirm:
                     password_error = "Passwords do not match."
                 elif not is_strong_password(password):
-                    password_error = "Password must be at least 8 characters, include upper and lower case letters, a number, and a special character."
+                    password_error = "Password must be at least 8 characters, include upper and lower case letters, a number."
             if password_error:
                 st.error(password_error)
             
