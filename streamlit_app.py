@@ -5,7 +5,24 @@ def main():
     st.set_page_config(
         page_title="Uchi AI - Find Your Perfect Home", 
         page_icon="🏠",
-        layout="centered"
+        layout="centered",
+        initial_sidebar_state="collapsed"
+    )
+    
+    # Hide sidebar completely with CSS
+    st.markdown(
+        """
+        <style>
+            .css-1d391kg {display: none;}
+            .st-emotion-cache-1d391kg {display: none;}
+            .css-1cypcdb {display: none;}
+            .st-emotion-cache-1cypcdb {display: none;}
+            section[data-testid="stSidebar"] {display: none;}
+            .stSidebar {display: none;}
+            div[data-testid="collapsedControl"] {display: none;}
+        </style>
+        """,
+        unsafe_allow_html=True
     )
     
     # Main landing page
