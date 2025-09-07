@@ -44,7 +44,7 @@ def run_chat():
 
     if not st.session_state.messages:
         with st.chat_message("assistant"):
-            st.markdown("Hello! I am an <b>AI assistant</b> for Uchi.", unsafe_allow_html=True)
+            st.markdown("Hello! I am an <b>AI assistant</b> for Uchi. ", unsafe_allow_html=True)
         time.sleep(1)
         try:
             gif_url = st.session_state.gif_service.get_greeting_gif()
@@ -53,7 +53,7 @@ def run_chat():
             print(str(e))
 
         time.sleep(1)
-        greeting = "What is your name ? And what brought you here today? 😊"
+        greeting = "I heard you are looking for a home and would love to know more. First, what is your name ? 😊"
         st.session_state.messages.append({"role": "assistant", "content": greeting})
 
     # Display chat messages
