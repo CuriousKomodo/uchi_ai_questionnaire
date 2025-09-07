@@ -28,63 +28,38 @@ def run_rental_survey():
 
         st.session_state.recommendation_processor.submit_and_wait(submission_id)
 
-    # Helper function to get customer info value with default
-    def get_param(key, default=None):
-        value = params.get(key)
-        if value is None or value == "None":
-            return default
-        if key == "property_type":
-            mapping = {
-                "both": ["House", "Apartment"],
-                "apartment": ["Apartment"],
-                "house": ["House"]
-            }
-            return mapping.get(value.lower(), [])
-        if key == "has_child":
-            key_words = ["baby", "child", "son", "daughter", "family", "kid"]
-            if any([kw in str(value).lower() for kw in key_words]):
-                return True
-        return value
 
     with pages:
         if pages.current == 0:
             st.markdown("<h3>Tell us what you are looking for?</h3>", unsafe_allow_html=True)
-            if get_param("name"):
-                st.markdown(f"Hello {get_param('name')}, let's get you signed up for rental alerts.")
 
-            motivation = st.text_area(
-                "What is your reason for renting a property?",
-                value=get_param("motivation", "")
-            )
-            renting_alone = survey.selectbox(
-                "Are you renting alone?",
-                options=["Yes", "No"],
-                placeholder="Yes" if get_param("is_renting_alone", True) else "No"
+            renting_alone = survey.number_input(
+                "Are many people are renting?",
+                value=1
             )
             num_bedrooms = st.number_input(
                 "Minimum number of bedrooms",
                 min_value=0,
                 max_value=10,
-                value=int(get_param("num_bedrooms", 1))
+                value=1
             )
             max_monthly_rent = st.slider(
-                "Maximum monthly rent (in £)",
+                "Maximum monthly rent in £ (for all the renters in total)",
                 min_value=500,
                 max_value=5000,
-                value=int(get_param("max_monthly_rent", 2000))
+                value=1500
             )
             property_type = survey.multiselect(
                 "Type of property, select all that applies:",
-                options=["House", "Apartment", "Studio"],
-                default=get_param("property_type", ["Apartment"])
+                options=["House", "Flat", "Studio"],
+                default="Flat"
             )
 
             user_preference = st.text_area(
                 "Tell us about all the desired features & requirements of your dream rental?",
-                value=get_param("additional_notes", "Bright light with good storage, modern kitchen")
+                value="Bright light with good storage, modern kitchen"
             )
             st.session_state.form_results.update({
-                "motivation": motivation,
                 "renting_alone": renting_alone,
                 "num_bedrooms": num_bedrooms,
                 "max_monthly_rent": max_monthly_rent,
@@ -97,32 +72,31 @@ def run_rental_survey():
             timeline = survey.selectbox(
                 "When do you want to move in?",
                 options=["ASAP", "within 1 month", "within 3 months", "within 6 months", "flexible"],
-                placeholder=get_param("timeline", "within 3 months")
+                placeholder="within 3 months"
             )
 
             preferred_location = st.text_input(
                 'Do you have a preferred location? i.e. "West London" or "Finsbury Park"',
-                value=get_param("preferred_location", "London")
+                value="Hampstead Heath"
             )
             workplace_location = st.text_input(
                 "What's the postcode of a place you frequently commute to, such as your workplace/school?",
-                value=get_param("workplace_location", ""),
+                value="Liverpool Street"
             )
             has_child = survey.selectbox(
-                "👶🏼Do you have children or plan to have a child soon?",
+                "👶🏼Do you have children?",
                 options=["Yes", "No"],
-                index=0 if get_param("has_child") == "true" else 1
+                index=1
             )
             school_types = []
             if has_child == "Yes":
-                # Are you looking for schools?
                 school_types = survey.multiselect(
                     "🏫Are you looking for nursery/schools? If yes, select all that applies.",
                     options=["Nursery", "Primary", "Secondary"],
                 )
 
             has_pet = survey.selectbox(
-                "Do you have pets or plan to have a pet soon? 🐾",
+                "Do you have pets? 🐾",
                 options=["Yes", "No"],
                 index=1
             )
@@ -151,11 +125,9 @@ def run_rental_survey():
             st.markdown("<h3>Complete the registration</h3>", unsafe_allow_html=True)
             first_name = st.text_input(
                 "What's your first name?",
-                value=get_param("name", "")
             )
             email = st.text_input(
                 "Enter your email",
-                value=get_param("email", "")
             )
             password = st.text_input("Enter your password", type="password")
             password_confirm = st.text_input("Re-enter your password", type="password")
@@ -164,7 +136,7 @@ def run_rental_survey():
                 if password != password_confirm:
                     password_error = "Passwords do not match."
                 elif not is_strong_password(password):
-                    password_error = "Password must be at least 8 characters, include upper and lower case letters, a number."
+                    password_error = "Password must be at least 8 characters."
             if password_error:
                 st.error(password_error)
 
