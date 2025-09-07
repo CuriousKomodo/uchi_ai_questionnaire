@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import json
 
+from langfuse import observe, get_client
+
 from connection.azure_client import AzureClient
 
 # Load environment variables
@@ -21,10 +23,17 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], "The conversation history"]
     customer_info: Annotated[dict, "Customer information extracted from conversation"]
     wants_to_signup: Annotated[bool, "Would the customer like to signup?"]
+    session_id: Annotated[str, "id of the session"]
 
 
+@observe()
 def property_agent(state: AgentState) -> Dict:
     """Agent that handles property search conversations."""
+    langfuse = get_client()
+
+    # Add to the current trace
+    langfuse.update_current_trace(session_id=state["session_id"])
+
     messages = state["messages"]
     # Create the system prompt
     system_prompt = f"""
@@ -98,12 +107,18 @@ def property_agent(state: AgentState) -> Dict:
             "customer_info": state.get("customer_info", {})
         }
 
-def get_response(messages: Sequence[BaseMessage], customer_info: Dict = {}, wants_to_signup: bool = None) -> Dict:
+def get_response(
+        messages: Sequence[BaseMessage],
+        customer_info: Dict = {},
+        wants_to_signup: bool = None,
+        session_id: str = None
+) -> Dict:
     """Get a response from the agent for the given messages."""
     state = AgentState(
         messages=messages,
         customer_info=customer_info,
-        wants_to_signup=wants_to_signup
+        wants_to_signup=wants_to_signup,
+        session_id=session_id
     )
     return property_agent(state)
 
@@ -111,9 +126,9 @@ def get_response(messages: Sequence[BaseMessage], customer_info: Dict = {}, want
 # Have another agent to extract all the fields from the conversation into a structure format?
 if __name__ == "__main__":
     messages = [
-        HumanMessage(content="I am looking for a property"),
-        AIMessage(content="Hello! I'm Uchi AI, your personal property search assistant. What's your first name?"),
-        HumanMessage(content="My name is John and I am buying for the first time"),
+        HumanMessage(content="I am looking for a property").dict(),
+        AIMessage(content="Hello! I'm Uchi AI, your personal property search assistant. What's your first name?").dict(),
+        HumanMessage(content="My name is John and I am buying for the first time").dict(),
     ]
     result = get_response(messages)
     print("Response:", result["response"])
