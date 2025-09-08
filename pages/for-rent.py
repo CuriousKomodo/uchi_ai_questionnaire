@@ -39,11 +39,6 @@ def run_rental_survey():
         if pages.current == 0:
             st.markdown("<h3>Tell us what you are looking for?</h3>", unsafe_allow_html=True)
 
-            renting_alone = survey.selectbox(
-                "",
-                options=["Yes", "No"],
-                index=0
-            )
             num_bedrooms = st.number_input(
                 "Minimum number of bedrooms", 
                 min_value=0, 
@@ -67,7 +62,6 @@ def run_rental_survey():
                 value="Bright light with good storage, modern kitchen"
             )
             st.session_state.form_results.update({
-                "renting_alone": renting_alone,
                 "num_bedrooms": num_bedrooms,
                 "max_monthly_rent": max_monthly_rent,
                 "property_type": property_type,
