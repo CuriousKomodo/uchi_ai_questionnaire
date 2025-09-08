@@ -21,6 +21,7 @@ def run_buyer_survey():
         firestore = FireStore(credential_info=st.secrets["firestore_credentials"])
         submission_data = st.session_state.form_results.copy()
         submission_data["listing_type"] = "buy"
+        submission_data["session_id"] = get_param("chat_session_id")
         submission_id = firestore.insert_submission(submission_data)
 
         # Show immediate feedback
