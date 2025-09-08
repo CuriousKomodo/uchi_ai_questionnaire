@@ -47,7 +47,7 @@ def main():
             st.markdown("#### 🏡 **For Buyers**")
             st.markdown("Chat with our AI to find homes to purchase")
             if st.button("Start Buying Journey", key="buyer", type="primary", use_container_width=True):
-                st.switch_page("pages/for-buyer.py")
+                st.switch_page("pages/for-buy.py")
         
         with col_rent:
             st.markdown("#### 🏠 **For Renters**") 
