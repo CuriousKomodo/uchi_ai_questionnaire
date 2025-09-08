@@ -51,8 +51,8 @@ def run_rental_survey():
                 value=1
             )
             max_monthly_rent = st.slider(
-                "Maximum monthly rent (in £)", 
-                min_value=500, 
+                "Maximum monthly rent in £ (excluding bills)",
+                min_value=0,
                 max_value=5000, 
                 value=2000
             )
@@ -78,7 +78,7 @@ def run_rental_survey():
             st.markdown("<h3>Location preference & your lifestyle</h3>", unsafe_allow_html=True)
             timeline = survey.selectbox(
                 "When do you want to move in?",
-                options=["ASAP", "within 1 month", "within 3 months", "within 6 months", "flexible"],
+                options=["ASAP", "within 3 months", "within 6 months", "flexible"],
                 index=2  # "within 3 months"
             )
 

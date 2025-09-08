@@ -4,3 +4,4 @@ google-cloud-firestore==2.19.0
 langchain-openai==0.3.27
 python-dotenv==1.0.1
 langchain-core==0.3.68
+langfuse==3.2.7
