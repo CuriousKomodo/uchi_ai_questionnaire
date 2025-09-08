@@ -1,20 +1,15 @@
 import os
 from typing import TypedDict, Annotated, Sequence, Dict
-
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
-from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv
-import os
 import json
 
-from langfuse import observe, get_client
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
+from dotenv import load_dotenv
 
+from langfuse import observe, get_client
 from connection.azure_client import AzureClient
 
-# Load environment variables
 load_dotenv()
 
-# os.environ.pop("SSL_CERT_FILE", None)
 
 client = AzureClient(chat_completion_model="gpt-4o-mini")
 
@@ -26,7 +21,7 @@ class AgentState(TypedDict):
     session_id: Annotated[str, "id of the session"]
 
 
-@observe()
+@observe
 def property_agent(state: AgentState) -> Dict:
     """Agent that handles property search conversations."""
     langfuse = get_client()
@@ -35,13 +30,12 @@ def property_agent(state: AgentState) -> Dict:
     langfuse.update_current_trace(session_id=state["session_id"])
 
     messages = state["messages"]
-    # Create the system prompt
     system_prompt = f"""
     You are an AI assistant for a startup called Uchi. You are here to helping customers find properties to buy. 
     Your role is to:
     1. Engage in natural conversation about property search
     2. Extract and track key information about the customer's needs
-    3. Provide helpful information about the Uchi
+    3. Provide helpful information about the Uchi.
     4. Detect if the customer wants to sign up
     5. If they wish to sign up, summarise all the key information in natural language to the customer and ask for their email
     6. Detect if something is wrong, e.g. user appears to be confused or asked to speak with a human, kindly ask if they like to email team@uchiai.co.uk
@@ -93,6 +87,9 @@ def property_agent(state: AgentState) -> Dict:
 
     # Generate response
     response = client.get_chat_completion(formatted_messages)
+    langfuse.update_current_trace(
+        session_id=state["session_id"],
+    )
     try:
         # Parse the response as JSON
         parsed_response = json.loads(response['content'])

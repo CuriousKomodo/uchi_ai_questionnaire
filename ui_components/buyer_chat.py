@@ -1,12 +1,19 @@
 import time
+import uuid
+
 import streamlit as st
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_agents import get_response
 from urllib.parse import parse_qs, urlencode
+from langfuse import get_client, observe
 
+langfuse_client = get_client()
 
 def run_chat():
     st.title("🤖Chat with Uchi AI - For Buyers")
+
+    if not st.session_state.get("session_id"):
+        st.session_state["session_id"] = str(uuid.uuid4())
 
     if not st.session_state.messages:
         with st.chat_message("assistant"):
@@ -44,6 +51,7 @@ def run_chat():
                 wants_to_signup=st.session_state.wants_to_signup,
                 session_id=st.session_state.session_id,
             )
+            langfuse_client.flush()
             response = new_state["response"]
             st.session_state.messages.append({"role": "assistant", "content": response})
             st.session_state.customer_info = new_state["customer_info"]
@@ -88,7 +96,8 @@ def run_chat():
                         "timeline": customer_info.get("timeline", ""),
                         "property_type": customer_info.get("property_type", "apartment"),
                         "num_bedrooms": str(customer_info.get("number_of_rooms", 1)),
-                        "max_price": str(customer_info.get("maximum_budget", 50))
+                        "max_price": str(customer_info.get("maximum_budget", 50)),
+                        "chat_session_id": st.session_state.session_id,
                     }
 
                     # Create the survey URL - redirect to same page with form parameter
