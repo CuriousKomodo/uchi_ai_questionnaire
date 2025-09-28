@@ -4,6 +4,25 @@ from connection.firestore import FireStore
 from utils import is_strong_password
 
 
+SUPPORTED_METADATA_TAGS = [
+    "has private parking",
+    "has garden",
+    "open kitchen",
+    "long lease > 150 years",
+    "modern interior",
+    "modern kitchen",
+    "modern bathroom",
+    "chain free",
+    "close to public transport",
+    "near nursery school",
+    "near primary school",
+    "near secondary school",
+    "near supermarket",
+    "near park",
+    "low crime neighbourhood",
+    "high income neighbourhood",
+]
+
 def run_buyer_survey():
     st.title("Let's find your dream home to buy in London 🏠")
 
@@ -55,7 +74,8 @@ def run_buyer_survey():
 
             motivation = st.text_area(
                 "What is your reason for buying a property?",
-                value=get_param("motivation", "")
+                value=get_param("motivation", ""),
+                placeholder=get_param("motivation", "I would like to live in the property, or invest. or flip the property, or directly rent to someone else")
             )
             buying_alone = survey.selectbox(
                 "Are you buying alone?",
@@ -87,8 +107,19 @@ def run_buyer_survey():
                     max_value=900,
                     value=150
                 )
+            user_preference_tags = survey.multiselect(
+                "Quick select ⚡ all the preferences that applies",
+                options=SUPPORTED_METADATA_TAGS,
+                placeholder="Select from our most common preferences :)"
+            )
+            if user_preference_tags:
+                badges = " ".join([
+                    f'<span style="background-color:#eef2ff;color:#1f3a8a;padding:4px 8px;border-radius:999px;margin-right:6px;margin-bottom:6px;display:inline-block;font-size:12px;">{t}</span>'
+                    for t in user_preference_tags
+                ])
+                st.markdown(badges, unsafe_allow_html=True)
             user_preference = st.text_area(
-                "Tell us about all the desired features & requirements of your dream home?",
+                "Any additional desired features & requirements of your dream home?",
                 value=get_param("additional_notes", "Bright light with good storage")
             )
             st.session_state.form_results.update({
@@ -98,6 +129,7 @@ def run_buyer_survey():
                 "max_price": max_price,
                 "property_type": property_type,
                 "min_lease_year": min_lease_year,
+                "user_preference_tags": user_preference_tags,
                 "user_preference": user_preference,
             })
 

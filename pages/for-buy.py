@@ -55,12 +55,13 @@ def main():
     initialize_session_state()
     
     # Check if we should show the form or chat
-    show_form = st.query_params.get("form", "") == "true"
-    
-    if show_form:
-        run_buyer_survey()
-    else:
-        run_chat()
+    # show_form = st.query_params.get("form", "") == "true"
+    #
+    # if show_form:
+    #     run_buyer_survey()
+    # else:
+    #     run_chat()
+    run_buyer_survey()
 
 
 if __name__ == "__main__":
