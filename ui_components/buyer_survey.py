@@ -1,5 +1,7 @@
 import streamlit as st
 import streamlit_survey as ss
+
+from connection.brevo import Brevo
 from connection.firestore import FireStore
 from utils import is_strong_password
 
@@ -45,8 +47,12 @@ def run_buyer_survey():
 
         # Show immediate feedback
         st.success("Submitted!")
-
         st.session_state.recommendation_processor.submit_and_wait(submission_id)
+
+        brevo = Brevo()  # or rely on BREVO_WELCOME_TEMPLATE_ID
+        email = st.session_state.form_results.get("email")
+        first_name = st.session_state.form_results.get("first_name")
+        brevo.send_welcome_email(email, first_name)
 
     # Helper function to get customer info value with default
     def get_param(key, default=None):

@@ -1,7 +1,4 @@
-# pip install brevo-python python-dotenv
-
 import os
-from typing import Optional
 
 from dotenv import load_dotenv
 from brevo_python import Configuration, ApiClient, SendSmtpEmail
@@ -49,6 +46,6 @@ class Brevo:
 
 
 if __name__ == "__main__":
-    brevo = Brevo(template_id=2)  # or rely on BREVO_WELCOME_TEMPLATE_ID
+    brevo = Brevo()  # or rely on BREVO_WELCOME_TEMPLATE_ID
     resp = brevo.send_welcome_email("hu.kefei@yahoo.co.uk", "Kefei")
     print("✅ Sent:", resp)
