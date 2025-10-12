@@ -2,6 +2,8 @@ import functools
 import json
 import re
 import time
+from datetime import datetime, date, timezone
+from typing import Optional, Union
 
 
 def save_json(data, filename):
@@ -13,6 +15,13 @@ def read_json(filename):
     json_file = open(filename, "r")
     data = json.load(json_file)
     return data
+
+
+def convert_date_to_datetime(v: Optional[Union[str, date, datetime]]) -> Optional[datetime]:
+    if isinstance(v, date):
+        return datetime(v.year, v.month, v.day, tzinfo=timezone.utc)
+    return None
+
 
 # Password strength validation utility
 def is_strong_password(pw):

@@ -8,8 +8,12 @@ from gif_service import GifService
 
 
 class RecommendationProcessor:
-    def __init__(self):
-        self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
+    def __init__(self, listing_type: str = "sale"):
+        self.listing_type = listing_type
+        if listing_type == "sale":
+            self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
+        else:
+            self.url = st.secrets.get("RECOMMENDATION_URL") # fixme this
         self.git_service = GifService()
     
     def submit_and_wait(self, submission_id: str):
@@ -30,7 +34,7 @@ class RecommendationProcessor:
         # Make the request in a separate thread
         result_container = {"result": None, "error": None}
         
-        def make_request():
+        def make_request():  # Refine this pipeline
             try:
                 payload = {
                     "submission_id": submission_id,
@@ -51,9 +55,13 @@ class RecommendationProcessor:
                     
             except Exception as e:
                 result_container["error"] = str(e)
-        
+
         # Start the request
-        thread = threading.Thread(target=make_request)
+        if self.listing_type == "sale":
+            thread = threading.Thread(target=make_request)
+        else:
+            thread = threading.Thread(target=make_request)
+
         thread.start()
         thread.join()  # Wait for completion
         

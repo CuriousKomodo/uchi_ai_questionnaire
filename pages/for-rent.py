@@ -1,10 +1,12 @@
 import time
 import uuid
+from datetime import datetime
+
 import streamlit as st
 import streamlit_survey as ss
 from connection.firestore import FireStore
 from submission_processor import RecommendationProcessor
-from utils import is_strong_password
+from utils import is_strong_password, convert_date_to_datetime
 
 
 def initialize_session_state():
@@ -16,6 +18,25 @@ def initialize_session_state():
     if "recommendation_processor" not in st.session_state:
         st.session_state.recommendation_processor = RecommendationProcessor()
 
+
+SUPPORTED_METADATA_TAGS = [
+    "has private parking",
+    "has garden",
+    "open kitchen",
+    "modern interior",
+    "modern kitchen",
+    "modern bathroom",
+    "close to public transport",
+    "near nursery school",
+    "near primary school",
+    "near secondary school",
+    "near supermarket",
+    "near park",
+    "low crime neighbourhood",
+    "high income neighbourhood",
+    "smoker friendly",
+    "pet friendly"
+]
 
 def run_rental_survey():
     st.title("Let's find your perfect rental in London 🏠")
@@ -38,52 +59,75 @@ def run_rental_survey():
     with pages:
         if pages.current == 0:
             st.markdown("<h3>Tell us what you are looking for?</h3>", unsafe_allow_html=True)
-
             num_bedrooms = st.number_input(
-                "Minimum number of bedrooms", 
+                "Number of beds",
                 min_value=0, 
                 max_value=10, 
                 value=1
             )
-            max_monthly_rent = st.slider(
+            max_monthly_rent = st.number_input(
                 "Maximum monthly rent in £ (excluding bills)",
                 min_value=0,
                 max_value=5000, 
                 value=2000
             )
-            property_type = survey.multiselect(
-                "Type of property, select all that applies:", 
-                options=["House", "Apartment", "Studio"],
-                default=["Apartment"]
+            let_type = survey.selectbox(
+                "Let length",
+                options=["Long term", "Short term"],
+                index=0  # "No preference"
             )
-            
-            user_preference = st.text_area(
-                "Tell us about all the desired features & requirements of your dream rental?",
-                value="Bright light with good storage, modern kitchen"
+            furnishing_preference = survey.selectbox(
+                "Do you prefer furnished or unfurnished?",
+                options=["Furnished", "Part Furnished", "Unfurnished", "No preference"],
+                index=2  # "No preference"
+            )
+            timeline = st.date_input(
+                "When do you want to move in?",
+                datetime.now().date()
+            )
+            property_type = survey.multiselect(
+                "Type of property, select all that applies:",
+                options=["House", "Apartment", "Room"],
+                default=["Apartment"]
             )
             st.session_state.form_results.update({
                 "num_bedrooms": num_bedrooms,
                 "max_monthly_rent": max_monthly_rent,
+                "let_type": let_type,
                 "property_type": property_type,
-                "user_preference": user_preference,
+                "timeline": convert_date_to_datetime(timeline),
+                "furnishing_preference": furnishing_preference,
             })
 
         elif pages.current == 1:
             st.markdown("<h3>Location preference & your lifestyle</h3>", unsafe_allow_html=True)
-            timeline = survey.selectbox(
-                "When do you want to move in?",
-                options=["ASAP", "within 3 months", "within 6 months", "flexible"],
-                index=2  # "within 3 months"
-            )
 
             preferred_location = st.text_input(
-                'Do you have a preferred location? i.e. "West London" or "Finsbury Park"',
+                'Do you have preferred locations? Separate multiple locations by ",". E.g. West London,Finsbury Park',
                 value="London"
             )
             workplace_location = st.text_input(
                 "What's the postcode of a place you frequently commute to, such as your workplace/school?",
                 value=""
             )
+            user_preference_tags = survey.multiselect(
+                "Quick select ⚡ all the preferences that applies",
+                options=SUPPORTED_METADATA_TAGS,
+                placeholder="Select from our most common preferences :)"
+            )
+
+            if user_preference_tags:
+                badges = " ".join([
+                    f'<span style="background-color:#eef2ff;color:#1f3a8a;padding:4px 8px;border-radius:999px;margin-right:6px;margin-bottom:6px;display:inline-block;font-size:12px;">{t}</span>'
+                    for t in user_preference_tags
+                ])
+                st.markdown(badges, unsafe_allow_html=True)
+
+            user_preference = st.text_area(
+                "Tell us about any additional features & requirements of your dream rental?",
+                value="Bright light with good storage, modern kitchen"
+            )
+
             has_child = survey.selectbox(
                 "👶🏼Do you have children or plan to have a child soon?",
                 options=["Yes", "No"],
@@ -103,24 +147,18 @@ def run_rental_survey():
                 index=1  # "No"
             )
             
-            furnishing_preference = survey.selectbox(
-                "Do you prefer furnished or unfurnished?",
-                options=["Furnished", "Unfurnished", "Part furnished", "No preference"],
-                index=3  # "No preference"
-            )
-            
             hobbies = st.text_area(
                 "What are your hobbies? 🎾🛍️",
                 value="E.g. I like to play tennis"
             )
             st.session_state.form_results.update({
                 "school_types": school_types,
+                "user_preference": user_preference,
                 "preferred_location": preferred_location,
-                "timeline": timeline,
                 "workplace_location": workplace_location,
+                "user_preference_tags": user_preference_tags,
                 "has_child": has_child,
                 "has_pet": has_pet,
-                "furnishing_preference": furnishing_preference,
                 "hobbies": hobbies,
             })
         elif pages.current == 2:
