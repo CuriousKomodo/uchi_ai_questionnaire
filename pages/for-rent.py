@@ -95,7 +95,7 @@ def run_rental_survey():
                 "max_monthly_rent": max_monthly_rent,
                 "let_type": let_type,
                 "property_type": property_type,
-                "timeline": convert_date_to_datetime(timeline),
+                "let_available": convert_date_to_datetime(timeline),
                 "furnishing_preference": furnishing_preference,
             })
 
