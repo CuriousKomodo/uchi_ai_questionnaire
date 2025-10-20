@@ -38,9 +38,10 @@ class Brevo:
         )
 
         try:
-            with ApiClient(self._cfg) as client:
-                api = TransactionalEmailsApi(client)
-                return api.send_transac_email(payload)
+            client = ApiClient(self._cfg)
+            api = TransactionalEmailsApi(client)
+            return api.send_transac_email(payload)
+
         except ApiException as e:
             raise e
 

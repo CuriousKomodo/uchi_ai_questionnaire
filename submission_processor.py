@@ -10,10 +10,7 @@ from gif_service import GifService
 class RecommendationProcessor:
     def __init__(self, listing_type: str = "sale"):
         self.listing_type = listing_type
-        if listing_type == "sale":
-            self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
-        else:
-            self.url = st.secrets.get("RECOMMENDATION_URL") # fixme this
+        self.url = st.secrets.get("CREATE_RECOMMENDATION_URL")
         self.git_service = GifService()
     
     def submit_and_wait(self, submission_id: str):
@@ -45,7 +42,7 @@ class RecommendationProcessor:
                     self.url,
                     json=payload,
                     headers={'Content-Type': 'application/json'},
-                    timeout=10
+                    timeout=20
                 )
                 
                 if response.status_code == 200:
@@ -56,12 +53,7 @@ class RecommendationProcessor:
             except Exception as e:
                 result_container["error"] = str(e)
 
-        # Start the request
-        if self.listing_type == "sale":
-            thread = threading.Thread(target=make_request)
-        else:
-            thread = threading.Thread(target=make_request)
-
+        thread = threading.Thread(target=make_request)
         thread.start()
         thread.join()  # Wait for completion
         
